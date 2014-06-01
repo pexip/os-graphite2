@@ -1,0 +1,5 @@
+include-and-libraries.diff
+no-specific-nunit-version.diff
+soname.diff
+non-linux.diff
+no-icons.diff

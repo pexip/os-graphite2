@@ -1,0 +1,62 @@
+#!/usr/bin/make -f
+
+include /usr/share/dpkg/architecture.mk
+
+%:
+	dh $@ --builddirectory=build
+
+override_dh_strip:
+	dh_strip --dbg-package=libgraphite2-3-dbg
+
+override_dh_auto_build-arch:
+	dh_auto_build
+#	echo "Building perl module"
+#	cd contrib/perl && \
+#		perl Build.PL prefix=/usr && \
+#		./Build
+
+override_dh_auto_build-indep:
+	echo "Building docs"
+	dh_auto_build -- docs
+#	echo "Building C# binding"
+#	cd contrib/C\# && \
+#		mono-xbuild NGraphite.sln
+
+override_dh_auto_install:
+	dh_auto_install
+#	cd perl && \
+#		./Build install destdir=$(CURDIR)/debian/libtext-gr2-perl
+#	# hack
+#	cd $(CURDIR)/debian/libtext-gr2-perl/usr && \
+#		mkdir share && mv man share
+#	cd $(CURDIR)/debian/libtext-gr2-perl/usr/lib && \
+#		mv perl perl5 && cd perl5 && mv 5.*/* . && rm -rf 5.*
+#	find debian/libtext-gr2-perl -type f -name .packlist | xargs rm -f
+
+override_dh_auto_test:
+	dh_auto_test
+#ifneq (nocheck,$(findstring nocheck,$(DEB_BUILD_OPTIONS)))
+#	cd contrib/perl && \
+#		LD_LIBRARY_PATH=$(CURDIR)/build/src ./Build test
+#endif
+
+override_dh_auto_clean:
+#	if [ -e contrib/perl/Build ]; then cd contrib/perl && \
+#		./Build clean; fi
+#	rm -rf contrib/perl/Build contrib/perl/_build
+#	rm -f /contrib/perl/MYMETA*
+#	rm -f contrib/C\#/NGraphite/obj/Debug/NGraphite.csproj.FilesWrittenAbsolute.txt
+#	-find contrib/C\# -name "*.dll" | xargs rm
+#	-find contrib/C\# -name "*.dll.mdb" | xargs rm
+	-find . -name "CTestCostData.txt" | xargs rm
+	-find . -name "LastTest.log"  | xargs rm
+	dh_auto_clean
+
+override_dh_auto_configure:
+	dh_auto_configure -- -DCMAKE_BUILD_TYPE:STRING=Release -DGRAPHITE2_NTRACING:bool=1 -DLIB_SUFFIX=/$(DEB_HOST_MULTIARCH)
+	find . -type f ! -name "rules" ! -name "changelog" \
+		-exec sed -i -e 's/\-O3//g' {} \;
+
+override_dh_gencontrol:
+	dh_gencontrol -Nlibtext-gr2-perl -O--builddirectory=build
+#	dh_gencontrol -plibtext-gr2-perl -- -v`cat perl/META.yml | grep version: | tail -n 1 | awk '{ print $$2 }'`-`dpkg-parsechangelog  | grep urgency | awk '{ print $$2 }' | sed -e 's/(//' | sed -e 's/)//' | cut -d- -f2`
