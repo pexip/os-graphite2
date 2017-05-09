@@ -1,5 +1,6 @@
 #!/usr/bin/make -f
 
+export DPKG_EXPORT_BUILDFLAGS = 0
 include /usr/share/dpkg/architecture.mk
 
 %:
@@ -9,7 +10,7 @@ override_dh_strip:
 	dh_strip --dbg-package=libgraphite2-3-dbg
 
 override_dh_auto_build-arch:
-	dh_auto_build
+	dh_auto_build --parallel
 #	echo "Building perl module"
 #	cd contrib/perl && \
 #		perl Build.PL prefix=/usr && \
@@ -23,7 +24,11 @@ override_dh_auto_build-indep:
 #		mono-xbuild NGraphite.sln
 
 override_dh_auto_install:
-	dh_auto_install
+	if [ -f ./build/src/libgraphite2.so.3 ]; then \
+		dh_auto_install; \
+	else \
+		dh_install -plibgraphite2-doc --sourcedir=$(CURDIR); \
+	fi
 #	cd perl && \
 #		./Build install destdir=$(CURDIR)/debian/libtext-gr2-perl
 #	# hack
@@ -34,7 +39,9 @@ override_dh_auto_install:
 #	find debian/libtext-gr2-perl -type f -name .packlist | xargs rm -f
 
 override_dh_auto_test:
-	dh_auto_test
+	if [ -f ./build/src/libgraphite2.so.3 ]; then \
+		dh_auto_test; \
+	fi
 #ifneq (nocheck,$(findstring nocheck,$(DEB_BUILD_OPTIONS)))
 #	cd contrib/perl && \
 #		LD_LIBRARY_PATH=$(CURDIR)/build/src ./Build test
@@ -50,10 +57,11 @@ override_dh_auto_clean:
 #	-find contrib/C\# -name "*.dll.mdb" | xargs rm
 	-find . -name "CTestCostData.txt" | xargs rm
 	-find . -name "LastTest.log"  | xargs rm
+	rm -f tests/graphite.pyc
 	dh_auto_clean
 
 override_dh_auto_configure:
-	dh_auto_configure -- -DCMAKE_BUILD_TYPE:STRING=Release -DGRAPHITE2_NTRACING:bool=1 -DLIB_SUFFIX=/$(DEB_HOST_MULTIARCH)
+	dh_auto_configure -- -DCMAKE_BUILD_TYPE:STRING=Release -DGRAPHITE2_NTRACING:BOOL=ON -DLIB_SUFFIX=/$(DEB_HOST_MULTIARCH)
 	find . -type f ! -name "rules" ! -name "changelog" \
 		-exec sed -i -e 's/\-O3//g' {} \;
 

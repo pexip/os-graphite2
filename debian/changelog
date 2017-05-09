@@ -1,3 +1,111 @@
+graphite2 (1.3.6-1~deb8u1pexip1) pexip; urgency=low
+
+  * New upstream release
+
+ -- John-Mark Bell <jmb@pexip.com>  Tue, 09 May 2017 16:09:41 +0100
+
+graphite2 (1.3.6-1~deb8u1) stable-security; urgency=high
+
+  * rebuild for stable-security 
+  * revert ddeb-migration
+
+ -- Rene Engelhard <rene@debian.org>  Wed, 09 Mar 2016 12:11:42 +0100
+
+graphite2 (1.3.6-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Rene Engelhard <rene@debian.org>  Mon, 29 Feb 2016 20:52:55 +0100
+
+graphite2 (1.3.5-1) unstable; urgency=medium
+
+  * New upstream release
+    - fixes Bidirectional Font BracketPairStack Code Execution Vulnerability
+      (TALOS-2016-0057/CVE-2016-1522)
+    - fixes directrun Opcode Handling Code Execution Vulnerability
+      (TALOS-2016-0058/CVE-2016-1521)
+    - fixes Context Item Code Execution Vulnerability
+      (TALOS-2016-0059/CVE-2016-1523)
+    - fixes Bidirectional Font mFeatureMap Denial of Service Vulnerability
+      (TALOS-2016-0060/CVE-2016-1522)
+    - fixes LocaLookup Denial of Service Vulnerability"
+      (TALOS-2016-0061/CVE-2016-1521)
+
+ -- Rene Engelhard <rene@debian.org>  Wed, 20 Jan 2016 23:39:14 +0100
+
+graphite2 (1.3.4-2) unstable; urgency=medium
+
+  * debian/patches/revert-collision-info-refactoring-to-fix-alignment.diff:
+    add from upstream git, thanks Tim Eves (closes: #805323)
+  * debian/patches/reproducible-build.diff: tell dblatex to use a static
+    path to make build reproduceable, thanks Reiner Herrmann
+    (closes: #807838)
+  * use -DGRAPHITE2_NTRACING:BOOL=ON (instead of :bool=1)
+  * fix Maintainer:
+  * migrate from manual -dbg to ddeb
+
+ -- Rene Engelhard <rene@debian.org>  Tue, 05 Jan 2016 17:12:01 +0000
+
+graphite2 (1.3.4-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Rene Engelhard <rene@debian.org>  Sat, 31 Oct 2015 16:11:37 +0100
+
+graphite2 (1.3.3-1) unstable; urgency=medium
+
+  * New upstream release
+
+ -- Rene Engelhard <rene@debian.org>  Tue, 22 Sep 2015 09:07:46 +0200
+
+graphite2 (1.3.2-4) unstable; urgency=medium
+
+  * upload to unstable
+
+  * add graphviz to B-D-I...
+
+ -- Rene Engelhard <rene@debian.org>  Fri, 18 Sep 2015 11:12:41 +0200
+
+graphite2 (1.3.2-3) experimental; urgency=medium
+
+  * don't run dh_auto_install when ./build/src/libgraphite2.so.3 doesn't exist
+    (as for dh_auto_test) so that we don't run a graphite build after building
+    the docs (as make install of course requires that). Install the docs
+    manually using .install
+
+ -- Rene Engelhard <rene@debian.org>  Wed, 16 Sep 2015 11:52:49 +0200
+
+graphite2 (1.3.2-2) experimental; urgency=medium
+
+  * check for existence of ./build/src/libgraphite2.so.3 before running
+    dh_auto_test to skip the tests on "all" builds
+
+ -- Rene Engelhard <rene@debian.org>  Tue, 15 Sep 2015 08:13:13 +0200
+
+graphite2 (1.3.2-1) experimental; urgency=medium
+
+  * New upstream release
+
+  * use --parallel in dh_auto_build (not in docs build and tests; the former
+    doesn't build with parallelism)
+  * Standards-Versions: 3.9.1 -> 3.9.6, no changes needed
+
+ -- Rene Engelhard <rene@debian.org>  Mon, 14 Sep 2015 21:20:32 +0200
+
+graphite2 (1.3.0-2) experimental; urgency=medium
+
+  * backport fixes from http://hg.palaso.org/graphitedev/raw-rev/cfab7499b46b:
+    - fix tests on !linux (closes: #79499)
+    - increase test timeout from 10s to 120s to make them succeed on mips(el)
+
+ -- Rene Engelhard <rene@rene-engelhard.de>  Wed, 12 Aug 2015 17:12:57 +0200
+
+graphite2 (1.3.0-1) experimental; urgency=medium
+
+  * New upstream release
+
+ -- Rene Engelhard <rene@debian.org>  Sat, 08 Aug 2015 10:38:42 +0000
+
 graphite2 (1.2.4-3pexip2) pexip; urgency=low
 
   * No-change rebuild

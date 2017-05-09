@@ -1,3 +1,57 @@
+1.3.6
+    . Bug fixes
+
+1.3.5
+    . Bug fixes
+        . Security bug fix
+        . Fix ARM misalignment problem
+        . Track latest cmake
+
+1.3.4
+    . Transition from Mercurial to Git
+    . Bug fixes
+        . Fix Collision Kerning ignoring some diacritics
+        . Handle pass bits 16-31 to speed up fonts with > 16 passes
+        . Various minor fuzz bug fixes
+        . Make Coverity happy
+        . Add GR_FALLTHROUGH macro for clang c++11
+
+1.3.3
+    . Slight speed up in Collision Avoidance
+    . Remove dead bidi code
+    . Bug fixes
+        . Between pass bidi reorderings and at the end
+        . Decompressor fuzz bugs
+        . Other fuzz bugs
+
+1.3.2
+    . Remove full bidi. All segments are assumed to be single directioned.
+    . Bug fixes:
+        . Decompressor corner cases
+        . Various fuzz bugs
+
+1.3.1
+    . Deprecation warning: Full bidi support is about to be deprecated. Make contact
+      if this impacts you.
+    . Change compression block format slightly to conform to LZ4
+    . Bug fixes:
+        . Handle mono direction text with diacritics consistently. Fonts
+          now see the direction they expect consistently and bidi now
+          gives expected results.
+        . Fixed lots of fuzz bugs
+        . Coverity cleanups
+        . Build now works for clang and/or asan and/or afl etc.
+
+1.3.0
+    . Add collision avoidance
+        . Shift Collider
+        . Kern Collider
+        . Octabox outlines and subboxes
+    . Add compressed Silf and Glat table support
+    . Bug fixes:
+        . Stop loops forming in the child, sibling tree
+        . Handle bidi mirroring correctly if no bidi occurring
+
 1.2.4
     . Face failure now has error code reporting via debug logging
         . can now call gr_start_logging(NULL, fname)
@@ -8,7 +62,7 @@
     . Fonts no longer require a glyf/loca table. In such cases the bounding box is always 0.
     . Clang ASAN build support added for testing.
     . Handle out of memory sanely.
-    . Dcoumentation improvements
+    . Documentation improvements
     . Bug fixes:
         . Enforce fonts having to store glyph attributes by monotonically increasing attribute number
         . zeropadding was not getting called on feature tags
@@ -69,14 +123,17 @@
     . Tidy up perl wrappers
     . Fuzz tester improvements
     . Various bug fixes for bad font handling
+
 1.1.2
     . Support feature ids < 4 chars when space padded for inclusion in FF 14.
     . More fuzztesting and removal of causes of valgrind bad reads and sigabrts
     . Remove contrib/android into its own repo (http://hg.palaso.org/grandroid)
     . Update comparerenderer to latest harfbuzzng api
+
 1.1.1
     . Missing Log.h included
     . perl wrappers updated
+
 1.1.0
     . Refactored debug output to use json
     . Renamed VM_MACHINE_TYPE to GRAPHITE2_VM_TYPE
@@ -98,7 +155,7 @@
     . Moved internal .h files into src/inc
     . Parallelise fuzztest
     . General build improvements, particularly on Windows
-      
+
 1.0.3
     . Fix UTF16 surrogate support
     . script and lang tags may be space padded or null padded

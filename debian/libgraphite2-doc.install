@@ -1,0 +1,4 @@
+./build/doc/manual.html /usr/share/doc/libgraphite2-doc
+./build/doc/manual.pdf /usr/share/doc/libgraphite2-doc
+./build/doc/doxygen/latex/refman.pdf /usr/share/doc/libgraphite2-doc
+./build/doc/doxygen/html /usr/share/doc/libgraphite2-doc

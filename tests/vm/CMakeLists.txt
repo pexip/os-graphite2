@@ -34,10 +34,6 @@ if  (${CMAKE_COMPILER_IS_GNUCXX})
 	target_link_libraries(vm-test-direct vm-test-common)
 endif  (${CMAKE_COMPILER_IS_GNUCXX})
 
-if (GRAPHITE2_ASAN)
-    set_target_properties(vm-test-call PROPERTIES LINK_FLAGS "-fsanitize=address")
-endif (GRAPHITE2_ASAN)
-
 if  (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 	add_definitions(-fno-rtti -fno-exceptions)
 	if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
@@ -49,10 +45,19 @@ add_test(vm-test-call-threading vm-test-call ${testing_SOURCE_DIR}/fonts/tiny.tt
 set_tests_properties(vm-test-call-threading PROPERTIES
         PASS_REGULAR_EXPRESSION "simple program size:    14 bytes.*result of program: 42"
         FAIL_REGULAR_EXPRESSION "program terminated early;stack not empty")
+if (GRAPHITE2_ASAN)
+    set_target_properties(vm-test-call PROPERTIES LINK_FLAGS "-fsanitize=address")
+    set_property(TEST vm-test-call-threading APPEND PROPERTY ENVIRONMENT "ASAN_SYMBOLIZER_PATH=${ASAN_SYMBOLIZER}")
+endif (GRAPHITE2_ASAN)
 
 if  (${CMAKE_COMPILER_IS_GNUCXX})
 	add_test(vm-test-direct-threading vm-test-direct ${testing_SOURCE_DIR}/fonts/tiny.ttf 1)
 	set_tests_properties(vm-test-direct-threading PROPERTIES
 			PASS_REGULAR_EXPRESSION "simple program size:    14 bytes.*result of program: 42"
 			FAIL_REGULAR_EXPRESSION "program terminated early;stack not empty")
+    if (GRAPHITE2_ASAN)
+        set_target_properties(vm-test-direct PROPERTIES LINK_FLAGS "-fsanitize=address")
+        set_property(TEST vm-test-direct-threading APPEND PROPERTY ENVIRONMENT "ASAN_SYMBOLIZER_PATH=${ASAN_SYMBOLIZER}")
+    endif (GRAPHITE2_ASAN)
 endif  (${CMAKE_COMPILER_IS_GNUCXX})
+
