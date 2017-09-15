@@ -21,6 +21,7 @@ int main(int argc, char **argv)
     char *pError;               /* location of faulty utf-8 */
     gr_font *font = NULL;
     size_t numCodePoints = 0;
+    unsigned int lenstr = strlen(argv[2]);
     gr_segment * seg = NULL;
     cluster_t *clusters;
     int ic, ci = 0;
@@ -42,6 +43,8 @@ int main(int argc, char **argv)
     {
         unsigned int before = gr_cinfo_base(gr_seg_cinfo(seg, gr_slot_before(is)));
         unsigned int after = gr_cinfo_base(gr_seg_cinfo(seg, gr_slot_after(is)));
+        unsigned int nAfter;
+        unsigned int cAfter;
         while (clusters[ci].base_char > before && ci)                               /*<2>*/
         {
             clusters[ci-1].num_chars += clusters[ci].num_chars;
@@ -61,8 +64,10 @@ int main(int argc, char **argv)
         }
         ++clusters[ci].num_glyphs;
 
-        if (clusters[ci].base_char + clusters[ci].num_chars < after + 1)            /*<4>*/
-            clusters[ci].num_chars = after + 1 - clusters[ci].base_char;
+        nAfter = gr_slot_after(is) + 1;
+        cAfter = nAfter < numCodePoints ? gr_cinfo_base(gr_seg_cinfo(seg, nAfter)) : lenstr;
+        if (clusters[ci].base_char + clusters[ci].num_chars < cAfter)              /*<4>*/
+            clusters[ci].num_chars = cAfter - clusters[ci].base_char;
     }
 
     ci = 0;
@@ -73,7 +78,7 @@ int main(int argc, char **argv)
                                    gr_slot_origin_Y(s));
         if (--clusters[ci].num_glyphs == 0)                                         /*<5>*/
         {
-            fprintf(log, "\n");
+            fprintf(log, "[%d+%d]\n", clusters[ci].base_char, clusters[ci].num_chars);
             ++ci;
         }
     }

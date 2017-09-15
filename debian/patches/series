@@ -1,3 +1,5 @@
+do-not-require-ss2.diff
+ffloat-store.diff
 non-linux.diff
 no-icons.diff
 test-timeout.diff

@@ -1,6 +1,6 @@
 Format: http://dep.debian.net/deps/dep5
-Upstream-Name: graphite2
-Source: http://sf.net/projects/silgraphite
+Upstream-Name: graphite
+Source: https://github.com/silnrsi/graphite/releases
 
 Files: *
 Copyright: (C) 2010-2011, SIL International
