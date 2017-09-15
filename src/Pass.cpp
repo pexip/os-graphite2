@@ -101,7 +101,7 @@ bool Pass::readPass(const byte * const pass_start, size_t pass_length, size_t su
     // Read in basic values
     const byte flags = be::read<byte>(p);
     if (e.test((flags & 0x1f) && 
-            (pt < PASS_TYPE_POSITIONING || !m_silf->aCollision() || !face.glyphs().hasBoxes()),
+            (pt < PASS_TYPE_POSITIONING || !m_silf->aCollision() || !face.glyphs().hasBoxes() || !(m_silf->flags() & 0x20)),
             E_BADCOLLISIONPASS))
         return face.error(e);
     m_numCollRuns = flags & 0x7;
@@ -171,7 +171,7 @@ bool Pass::readPass(const byte * const pass_start, size_t pass_length, size_t su
     const uint16 * const o_actions = reinterpret_cast<const uint16 *>(p);
     be::skip<uint16>(p, m_numRules + 1);
     const byte * const states = p;
-    if (e.test(p + 2u*m_numTransition*m_numColumns >= pass_end, E_BADPASSLENGTH)) return face.error(e);
+    if (e.test(2u*m_numTransition*m_numColumns >= (unsigned)(pass_end - p), E_BADPASSLENGTH)) return face.error(e);
     be::skip<int16>(p, m_numTransition*m_numColumns);
     be::skip<uint8>(p);
     if (e.test(p != pcCode, E_BADPASSCCODEPTR)) return face.error(e);
@@ -192,7 +192,7 @@ bool Pass::readPass(const byte * const pass_start, size_t pass_length, size_t su
         m_cPConstraint = vm::Machine::Code(true, pcCode, pcCode + pass_constraint_len, 
                                   precontext[0], be::peek<uint16>(sort_keys), *m_silf, face, PASS_TYPE_UNKNOWN);
         if (e.test(!m_cPConstraint, E_OUTOFMEM)
-                || e.test(!m_cPConstraint, m_cPConstraint.status() + E_CODEFAILURE))
+                || e.test(m_cPConstraint.status() != Code::loaded, m_cPConstraint.status() + E_CODEFAILURE))
             return face.error(e);
         face.error_context(face.error_context() - 1);
     }
@@ -231,7 +231,11 @@ bool Pass::readRules(const byte * rule_map, const size_t num_entries,
     // Allocate pools
     m_rules = new Rule [m_numRules];
     m_codes = new Code [m_numRules*2];
-    const size_t prog_pool_sz = vm::Machine::Code::estimateCodeDataOut(ac_end - ac_data + rc_end - rc_data);
+    int totalSlots = 0;
+    const uint16 *tsort = sort_key;
+    for (int i = 0; i < m_numRules; ++i)
+        totalSlots += be::peek<uint16>(--tsort);
+    const size_t prog_pool_sz = vm::Machine::Code::estimateCodeDataOut(ac_end - ac_data + rc_end - rc_data, 2 * m_numRules, totalSlots);
     m_progs = gralloc<byte>(prog_pool_sz);
     byte * prog_pool_free = m_progs,
          * prog_pool_end  = m_progs + prog_pool_sz;
@@ -254,7 +258,7 @@ bool Pass::readRules(const byte * rule_map, const size_t num_entries,
 
         if (ac_begin > ac_end || ac_begin > ac_data_end || ac_end > ac_data_end
                 || rc_begin > rc_end || rc_begin > rc_data_end || rc_end > rc_data_end
-                || vm::Machine::Code::estimateCodeDataOut(ac_end - ac_begin + rc_end - rc_begin) > size_t(prog_pool_end - prog_pool_free))
+                || vm::Machine::Code::estimateCodeDataOut(ac_end - ac_begin + rc_end - rc_begin, 2, r->sort) > size_t(prog_pool_end - prog_pool_free))
             return false;
         r->action     = new (m_codes+n*2-2) vm::Machine::Code(false, ac_begin, ac_end, r->preContext, r->sort, *m_silf, face, pt, &prog_pool_free);
         r->constraint = new (m_codes+n*2-1) vm::Machine::Code(true,  rc_begin, rc_end, r->preContext, r->sort, *m_silf, face, pt, &prog_pool_free);
@@ -335,7 +339,7 @@ bool Pass::readStates(const byte * starts, const byte *states, const byte * o_ru
         *t = be::read<uint16>(states);
         if (e.test(*t >= m_numStates, E_BADSTATE))
         {
-            face.error_context((face.error_context() & 0xFFFF00) + EC_ATRANS + (((t - m_transitions) / m_numColumns) << 24));
+            face.error_context((face.error_context() & 0xFFFF00) + EC_ATRANS + (((t - m_transitions) / m_numColumns) << 8));
             return face.error(e);
         }
     }
@@ -356,7 +360,8 @@ bool Pass::readStates(const byte * starts, const byte *states, const byte * o_ru
         s->rules = begin;
         s->rules_end = (end - begin <= FiniteStateMachine::MAX_RULES)? end :
             begin + FiniteStateMachine::MAX_RULES;
-        qsort(begin, end - begin, sizeof(RuleEntry), &cmpRuleEntry);
+        if (begin)      // keep UBSan happy can't call qsort with null begin
+            qsort(begin, end - begin, sizeof(RuleEntry), &cmpRuleEntry);
     }
 
     return true;
@@ -454,9 +459,9 @@ bool Pass::runFSM(FiniteStateMachine& fsm, Slot * slot) const
     do
     {
         fsm.slots.pushSlot(slot);
-        if (--free_slots == 0
-         || slot->gid() >= m_numGlyphs
+        if (slot->gid() >= m_numGlyphs
          || m_cols[slot->gid()] == 0xffffU
+         || --free_slots == 0
          || state >= m_numTransition)
             return free_slots != 0;
 
@@ -518,7 +523,7 @@ void Pass::findNDoRule(Slot * & slot, Machine &m, FiniteStateMachine & fsm) cons
                 if (r != re)
                 {
                     const int adv = doAction(r->rule->action, slot, m);
-                    dumpRuleEventOutput(fsm, m, *r->rule, slot);
+                    dumpRuleEventOutput(fsm, *r->rule, slot);
                     if (r->rule->action->deletes()) fsm.slots.collectGarbage(slot);
                     adjustSlot(adv, slot, fsm.slots);
                     *fsm.dbgout << "cursor" << objectid(dslot(&fsm.slots.segment, slot))
@@ -574,7 +579,7 @@ void Pass::dumpRuleEventConsidered(const FiniteStateMachine & fsm, const RuleEnt
 }
 
 
-void Pass::dumpRuleEventOutput(const FiniteStateMachine & fsm, Machine & m, const Rule & r, Slot * const last_slot) const
+void Pass::dumpRuleEventOutput(const FiniteStateMachine & fsm, const Rule & r, Slot * const last_slot) const
 {
     *fsm.dbgout     << json::item << json::flat << json::object
                         << "id"     << &r - m_rules
@@ -592,7 +597,7 @@ void Pass::dumpRuleEventOutput(const FiniteStateMachine & fsm, Machine & m, cons
                     << json::close // close "input"
                     << "slots"  << json::array;
     const Position rsb_prepos = last_slot ? last_slot->origin() : fsm.slots.segment.advance();
-    fsm.slots.segment.positionSlots(0, 0, 0, m.slotMap().dir());
+    fsm.slots.segment.positionSlots(0, 0, 0, fsm.slots.segment.currdir());
 
     for(Slot * slot = output_slot(fsm.slots, 0); slot != last_slot; slot = slot->next())
         *fsm.dbgout     << dslot(&fsm.slots.segment, slot);
@@ -630,12 +635,15 @@ bool Pass::testPassConstraint(Machine & m) const
 bool Pass::testConstraint(const Rule & r, Machine & m) const
 {
     const uint16 curr_context = m.slotMap().context();
-    if (unsigned(r.sort - r.preContext) > m.slotMap().size() - curr_context
+    if (unsigned(r.sort + curr_context - r.preContext) > m.slotMap().size()
         || curr_context - r.preContext < 0) return false;
-    if (!*r.constraint) return true;
-    assert(r.constraint->constraint());
 
     vm::slotref * map = m.slotMap().begin() + curr_context - r.preContext;
+    if (map[r.sort - 1] == 0)
+        return false;
+
+    if (!*r.constraint) return true;
+    assert(r.constraint->constraint());
     for (int n = r.sort; n && map; --n, ++map)
     {
         if (!*map) continue;
@@ -652,7 +660,7 @@ void SlotMap::collectGarbage(Slot * &aSlot)
 {
     for(Slot **s = begin(), *const *const se = end() - 1; s != se; ++s) {
         Slot *& slot = *s;
-        if(slot->isDeleted() || slot->isCopied())
+        if(slot && (slot->isDeleted() || slot->isCopied()))
         {
             if (slot == aSlot)
                 aSlot = slot->prev() ? slot->prev() : slot->next();
@@ -853,7 +861,6 @@ bool Pass::collisionShift(Segment *seg, int dir, json * const dbgout) const
 
 bool Pass::collisionKern(Segment *seg, int dir, json * const dbgout) const
 {
-    KernCollider kerncoll(dbgout);
     Slot *start = seg->first();
     float ymin = 1e38f;
     float ymax = -1e38f;
@@ -872,11 +879,14 @@ bool Pass::collisionKern(Segment *seg, int dir, json * const dbgout) const
         const SlotCollision * c = seg->collisionInfo(s);
         const Rect &bbox = seg->theGlyphBBoxTemporary(s->gid());
         float y = s->origin().y + c->shift().y;
-        ymax = max(y + bbox.tr.y, ymax);
-        ymin = min(y + bbox.bl.y, ymin);
+        if (!(c->flags() & SlotCollision::COLL_ISSPACE))
+        {
+            ymax = max(y + bbox.tr.y, ymax);
+            ymin = min(y + bbox.bl.y, ymin);
+        }
         if (start && (c->flags() & (SlotCollision::COLL_KERN | SlotCollision::COLL_FIX))
                         == (SlotCollision::COLL_KERN | SlotCollision::COLL_FIX))
-            resolveKern(seg, s, start, kerncoll, dir, ymin, ymax, dbgout);
+            resolveKern(seg, s, start, dir, ymin, ymax, dbgout);
         if (c->flags() & SlotCollision::COLL_END)
             start = NULL;
         if (c->flags() & SlotCollision::COLL_START)
@@ -955,8 +965,8 @@ bool Pass::resolveCollisions(Segment *seg, Slot *slotFix, Slot *start,
     {
         SlotCollision *cNbor = seg->collisionInfo(nbor);
         bool sameCluster = nbor->isChildOf(base);
-        if (nbor != slotFix         // don't process if this is the slot of interest
-                      && !(cNbor->flags() & SlotCollision::COLL_IGNORE)    // don't process if ignoring
+        if (nbor != slotFix         						// don't process if this is the slot of interest
+                      && !(cNbor->ignore())    				// don't process if ignoring
                       && (nbor == base || sameCluster       // process if in the same cluster as slotFix
                             || !inKernCluster(seg, nbor)    // or this cluster is not to be kerned
                             || (rtl ^ ignoreForKern))       // or it comes before(ltr) or after(rtl)
@@ -964,7 +974,7 @@ bool Pass::resolveCollisions(Segment *seg, Slot *slotFix, Slot *start,
                             || !(cNbor->flags() & SlotCollision::COLL_FIX)     // merge in immovable stuff
                             || ((cNbor->flags() & SlotCollision::COLL_KERN) && !sameCluster)     // ignore other kernable clusters
                             || (cNbor->flags() & SlotCollision::COLL_ISCOL))   // test against other collided glyphs
-                      && !coll.mergeSlot(seg, nbor, cNbor->shift(), !ignoreForKern, sameCluster, collides, false, dbgout))
+                      && !coll.mergeSlot(seg, nbor, cNbor, cNbor->shift(), !ignoreForKern, sameCluster, collides, false, dbgout))
             return false;
         else if (nbor == slotFix)
             // Switching sides of this glyph - if we were ignoring kernable stuff before, don't anymore.
@@ -1015,7 +1025,7 @@ bool Pass::resolveCollisions(Segment *seg, Slot *slotFix, Slot *start,
     return true;
 }
 
-float Pass::resolveKern(Segment *seg, Slot *slotFix, GR_MAYBE_UNUSED Slot *start, KernCollider &coll, int dir,
+float Pass::resolveKern(Segment *seg, Slot *slotFix, GR_MAYBE_UNUSED Slot *start, int dir,
     float &ymin, float &ymax, json *const dbgout) const
 {
     Slot *nbor; // neighboring slot
@@ -1035,6 +1045,7 @@ float Pass::resolveKern(Segment *seg, Slot *slotFix, GR_MAYBE_UNUSED Slot *start
     }
     bool seenEnd = (cFix->flags() & SlotCollision::COLL_END) != 0;
     bool isInit = false;
+    KernCollider coll(dbgout);
 
     for (nbor = slotFix->next(); nbor; nbor = nbor->next())
     {
@@ -1044,7 +1055,7 @@ float Pass::resolveKern(Segment *seg, Slot *slotFix, GR_MAYBE_UNUSED Slot *start
             return 0.;
         const Rect &bb = seg->theGlyphBBoxTemporary(nbor->gid());
         SlotCollision *cNbor = seg->collisionInfo(nbor);
-        if (bb.bl.y == 0.f && bb.tr.y == 0.f)
+        if ((bb.bl.y == 0.f && bb.tr.y == 0.f) || (cNbor->flags() & SlotCollision::COLL_ISSPACE))
         {
             if (m_kernColls == InWord)
                 break;
@@ -1058,7 +1069,7 @@ float Pass::resolveKern(Segment *seg, Slot *slotFix, GR_MAYBE_UNUSED Slot *start
             float y = nbor->origin().y + cNbor->shift().y;
             ymax = max(y + bb.tr.y, ymax);
             ymin = min(y + bb.bl.y, ymin);
-            if (nbor != slotFix && !(cNbor->flags() & SlotCollision::COLL_IGNORE))
+            if (nbor != slotFix && !cNbor->ignore())
             {
                 seenEnd = true;
                 if (!isInit)
@@ -1081,7 +1092,7 @@ float Pass::resolveKern(Segment *seg, Slot *slotFix, GR_MAYBE_UNUSED Slot *start
     }
     if (collides)
     {
-        Position mv = coll.resolve(seg, slotFix, dir, cFix->margin(), dbgout);
+        Position mv = coll.resolve(seg, slotFix, dir, dbgout);
         coll.shift(mv, dir);
         Position delta = slotFix->advancePos() + mv - cFix->shift();
         slotFix->advance(delta);

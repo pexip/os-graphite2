@@ -92,7 +92,9 @@ public:
     bool ws;
     bool rtl;
     bool useLineFill;
+    bool noprint;
     int useCodes;
+    bool autoCodes;
     int justification;
     bool enableCache;
     float width;
@@ -137,6 +139,8 @@ void Parameters::clear()
     ws = false;
     useLineFill = false;
     useCodes = 0;
+    autoCodes = false;
+    noprint = false;
     justification = 0;
     enableCache = false;
     width = 100.0f;
@@ -210,6 +214,7 @@ bool Parameters::loadFromArgs(int argc, char *argv[])
         LINE_END,
         LINE_FILL,
         CODES,
+        AUTOCODES,
         FEAT,
         LOG,
         TRACE,
@@ -355,6 +360,10 @@ bool Parameters::loadFromArgs(int argc, char *argv[])
                 {
                     option = SIZE;
                 }
+                else if (strcmp(argv[a], "-noprint") == 0)
+                {
+                    noprint = true;
+                }
                 else if (strcmp(argv[a], "-codes") == 0)
                 {
                     option = NONE;
@@ -363,6 +372,18 @@ bool Parameters::loadFromArgs(int argc, char *argv[])
                     //pText32 = new unsigned int[argc];
                     pText32 = (unsigned int *)malloc(sizeof(unsigned int) * argc);
                     fprintf(log, "Text codes\n");
+                }
+                else if (strcmp(argv[a], "-auto") == 0)
+                {
+                    const unsigned kCodeLimit = 0x1000;
+                    charLength = kCodeLimit - 1;
+                    pText32 = (unsigned int *)malloc(sizeof(unsigned int) * kCodeLimit);
+                    unsigned int i;
+                    for (i = 1; i < kCodeLimit; ++i)
+                        pText32[i - 1] = i;
+                    pText32[charLength] = 0;
+                    autoCodes = true;
+                    option = NONE;
                 }
                 else if (strcmp(argv[a], "-linefill") == 0)
                 {
@@ -437,7 +458,7 @@ bool Parameters::loadFromArgs(int argc, char *argv[])
     if (mainArgOffset < 1) argError = true;
     else if (mainArgOffset > 1)
     {
-        if (!useCodes && pText != NULL)
+        if (!autoCodes && !useCodes && pText != NULL)
         {
             charLength = convertUtf<gr2::utf8>(pText, pText32);
             if (!pText32)
@@ -641,10 +662,10 @@ int Parameters::testFileFont() const
             featureList = parseFeatures(face);
         if (codesize == 2)
         {
-            unsigned short *pText16 = (unsigned short *)malloc(textSrc.getLength() * 2 * sizeof(unsigned short));
+            unsigned short *pText16 = (unsigned short *)malloc((textSrc.getLength() * 2 + 1) * sizeof(unsigned short));
             gr2::utf16::iterator ui = pText16;
             unsigned int *p = pText32;
-            for (int i = 0; i < textSrc.getLength(); ++i)
+            for (unsigned int i = 0; i < textSrc.getLength(); ++i)
             {
                 *ui = *p++;
                 ui++;
@@ -654,10 +675,10 @@ int Parameters::testFileFont() const
         }
         else if (codesize == 1)
         {
-            unsigned char *pText8 = (unsigned char *)malloc(textSrc.getLength() * 4);
+            unsigned char *pText8 = (unsigned char *)malloc((textSrc.getLength() + 1) * 4);
             gr2::utf8::iterator ui = pText8;
             unsigned int *p = pText32;
-            for (int i = 0; i < textSrc.getLength(); ++i)
+            for (unsigned int i = 0; i < textSrc.getLength(); ++i)
             {
                 *ui = *p++;
                 ui++;
@@ -669,7 +690,7 @@ int Parameters::testFileFont() const
             pSeg = gr_make_seg(sizedFont, face, 0, features ? featureList : NULL, textSrc.utfEncodingForm(),
                 textSrc.get_utf_buffer_begin(), textSrc.getLength(), rtl ? 1 : 0);
 
-        if (pSeg)
+        if (pSeg && !noprint)
         {
             int i = 0;
             float advanceWidth;
@@ -695,13 +716,15 @@ int Parameters::testFileFont() const
                 assert((i + 1 < numSlots) || (slot == gr_seg_last_slot(pSeg)));
                 float orgX = gr_slot_origin_X(slot);
                 float orgY = gr_slot_origin_Y(slot);
+                const gr_char_info *cinfo = gr_seg_cinfo(pSeg, gr_slot_original(slot));
                 fprintf(log, "%02d  %4d %3d@%d,%d\t%6.1f\t%6.1f\t%2d%4d\t%3d %3d\t",
                         i, gr_slot_gid(slot), lookup(map, (size_t)gr_slot_attached_to(slot)),
                         gr_slot_attr(slot, pSeg, gr_slatAttX, 0),
                         gr_slot_attr(slot, pSeg, gr_slatAttY, 0), orgX, orgY, gr_slot_can_insert_before(slot) ? 1 : 0,
-                        gr_cinfo_break_weight(gr_seg_cinfo(pSeg, gr_slot_original(slot))), gr_slot_before(slot), gr_slot_after(slot));
+                        cinfo ? gr_cinfo_break_weight(cinfo) : 0, gr_slot_before(slot), gr_slot_after(slot));
                
-                if (pText32 != NULL)
+                if (pText32 != NULL && gr_slot_before(slot) + offset < charLength
+                                    && gr_slot_after(slot) + offset < charLength)
                 {
                     fprintf(log, "%7x\t%7x",
                         pText32[gr_slot_before(slot) + offset],
@@ -714,15 +737,16 @@ int Parameters::testFileFont() const
             // position arrays must be one bigger than what countGlyphs() returned
             fprintf(log, "Advance width = %6.1f\n", advanceWidth);
             unsigned int numchar = gr_seg_n_cinfo(pSeg);
-            fprintf(log, "\nChar\tUnicode\tBefore\tAfter\n");
+            fprintf(log, "\nChar\tUnicode\tBefore\tAfter\tBase\n");
             for (unsigned int j = 0; j < numchar; j++)
             {
                 const gr_char_info *c = gr_seg_cinfo(pSeg, j);
-                fprintf(log, "%d\t%04X\t%d\t%d\n", j, gr_cinfo_unicode_char(c), gr_cinfo_before(c), gr_cinfo_after(c));
+                fprintf(log, "%d\t%04X\t%d\t%d\t%ld\n", j, gr_cinfo_unicode_char(c), gr_cinfo_before(c), gr_cinfo_after(c), gr_cinfo_base(c));
             }
             free(map);
-            gr_seg_destroy(pSeg);
         }
+        if (pSeg)
+            gr_seg_destroy(pSeg);
         if (featureList) gr_featureval_destroy(featureList);
         gr_font_destroy(sizedFont);
         if (trace) gr_stop_logging(face);
@@ -752,6 +776,8 @@ int main(int argc, char *argv[])
         fprintf(stderr,"-pt d\tPoint size (12)\n");
         fprintf(stderr,"-codes\tEnter text as hex code points instead of utf8 (false)\n");
         fprintf(stderr,"\te.g. %s font.ttf -codes 1000 102f\n",argv[0]);
+        fprintf(stderr,"-auto\tAutomatically generate a test string of all codes 1-0xFFF\n");
+        fprintf(stderr,"-noprint\tDon't print results\n");
         //fprintf(stderr,"-ls\tStart of line = true (false)\n");
         //fprintf(stderr,"-le\tEnd of line = true (false)\n");
         fprintf(stderr,"-rtl\tRight to left = true (false)\n");
