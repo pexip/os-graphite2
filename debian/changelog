@@ -1,3 +1,9 @@
+graphite2 (1.3.10-1pexip1) pexip; urgency=medium
+
+  * Migrate to Stretch
+
+ -- John-Mark Bell <jmb@pexip.com>  Tue, 10 Jul 2018 10:56:21 +0000
+
 graphite2 (1.3.10-1~deb8u1pexip1) pexip; urgency=low
 
   * New upstream release
