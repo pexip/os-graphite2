@@ -68,3 +68,6 @@ override_dh_auto_configure:
 override_dh_gencontrol:
 	dh_gencontrol -Nlibtext-gr2-perl -O--builddirectory=build
 #	dh_gencontrol -plibtext-gr2-perl -- -v`cat perl/META.yml | grep version: | tail -n 1 | awk '{ print $$2 }'`-`dpkg-parsechangelog  | grep urgency | awk '{ print $$2 }' | sed -e 's/(//' | sed -e 's/)//' | cut -d- -f2`
+
+override_dh_strip:
+	dh_strip --ddeb-migration="libgraphite2-3-dbg (<= 1.3.4-1)"
