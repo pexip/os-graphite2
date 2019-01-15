@@ -38,7 +38,11 @@ sparse classe is working correctly.
 
 using namespace graphite2;
 
-#define maskoff(n) ((unsigned long long)(-1L) >> (8*sizeof(0UL) - n))
+#if (defined(__x86_64__) && !defined(__ILP32__)) || defined(_WIN64)
+	#define HAS_64BIT
+#endif
+
+#define maskoff(n) (size_t(-1L) >> (8*sizeof(size_t) - n))
 
 #define pat(b)   0x01##b, 0x03##b, 0x07##b, 0x0f##b
 #define pat8(b)  pat(b), pat(f##b)
@@ -65,49 +69,49 @@ namespace
     patterns(8);
     patterns(16);
     patterns(32);
-#ifdef __x86_64__
+#if defined(HAS_64BIT)
     patterns(64);
 #endif
 
     int ret = 0;
 
-    
-    template<typename T> 
-    struct type_name {};
-    
+
     template<typename T>
-    inline 
-    std::ostream & operator << (std::ostream & o, type_name<T>)
+    struct type_name {};
+
+    // template<typename T>
+    // inline
+    // std::ostream & operator << (std::ostream & o, type_name<T>)
+    // {
+    //     if (!std::numeric_limits<T>::is_signed) o.put('u');
+    //     o << "int" << std::dec << sizeof(T)*8;
+    // }
+
+    template<typename T>
+    inline
+    void test_bit_set_count(const T pat[])
     {
-        if (!std::numeric_limits<T>::is_signed) o.put('u');
-        o << "int" << std::dec << sizeof(T)*8;
-    }
-    
-	template<typename T>
-	inline
-	void test_bit_set_count(const T pat[])
-	{
-		for (unsigned int p = 0; p <= sizeof(T)*8; ++p)
-		{
+        for (unsigned int p = 0; p <= sizeof(T)*8; ++p)
+        {
 #if !defined BENCHMARK
-			std::cout << "bit_set_count("
-			                << (!std::numeric_limits<T>::is_signed ? "uint" : "int")
-			                << std::dec << sizeof(T)*8 << "(0x"
-			                    << std::hex 
-			                    << std::setw(sizeof(T)*2) 
-			                    << std::setfill('0') 
-			                    << static_cast<unsigned long>(pat[p] & maskoff(8*sizeof(T)))
-		                << ")) -> "  
-		                    << std::dec 
-	                        <<  bit_set_count(pat[p]) << std::endl;
+            std::cout << "bit_set_count("
+                        << (!std::numeric_limits<T>::is_signed ? "uint" : "int")
+                        << std::dec << sizeof(T)*8 << "(0x"
+                            << std::hex
+                            << std::setw(sizeof(T)*2)
+                            << std::setfill('0')
+                            << (pat[p] & maskoff(8*sizeof(T)))
+                      << ")) -> "
+                        << std::dec
+                        << bit_set_count(pat[p]) << std::endl;
 #endif
-			if (bit_set_count(pat[p]) != p)
-			{
-				std::cerr << " != " << std::dec << p << std::endl;
-			    ret = sizeof(T);
-			}
-		}
-	}
+            if (bit_set_count(pat[p]) != p)
+            {
+                std::cerr << " != " << std::dec << p << std::endl;
+                ret = sizeof(T);
+            }
+        }
+    }
 
 }
 
@@ -124,12 +128,11 @@ int main(int argc , char *argv[])
         test_bit_set_count(s16_pat);
         test_bit_set_count(u32_pat);
         test_bit_set_count(s32_pat);
-#ifdef __x86_64__
+#if defined(HAS_64BIT)
         test_bit_set_count(u64_pat);
         test_bit_set_count(s64_pat);
 #endif
     }
-    
+
     return ret;
 }
-

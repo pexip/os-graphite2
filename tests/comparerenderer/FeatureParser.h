@@ -22,6 +22,7 @@
 #pragma once
 
 #include <cstring>
+#include <cstdlib>
 
 union FeatID
 {
@@ -44,10 +45,11 @@ public:
     FeatureParser(const char * features)
         : m_settings(NULL), m_featureCount(0)
     {
+        if (!features)  return;
         const char * pLang = NULL;
         m_lang.uId = 0;
         size_t featuresLength = strlen(features);
-        if (!features || featuresLength == 0)
+        if (featuresLength == 0)
             return;
         m_featureCount = 1;
         if (features && (pLang = strstr(features, "lang=")))
@@ -113,7 +115,7 @@ public:
                         featId.uId = atoi(name);
                         //ref = gr_face_find_fref(face, featId.uId);
                     }
-                    m_settings[featIndex].m_id.uId = featId.uId; 
+                    m_settings[featIndex].m_id.uId = featId.uId;
                     valueText = features + i + 1;
                     name = NULL;
                     break;

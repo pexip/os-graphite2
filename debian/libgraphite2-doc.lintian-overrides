@@ -1,1 +1,2 @@
-libgraphite2-doc: helper-templates-in-copyright
+# this is not jquery, it's a doxygen thing: https://bugs.debian.org/736360
+embedded-javascript-library
