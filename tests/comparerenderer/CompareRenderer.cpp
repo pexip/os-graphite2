@@ -54,7 +54,7 @@ class CompareRenderer
 {
 public:
     CompareRenderer(const char * testFile, Renderer** renderers, bool verbose)
-        : m_fileBuffer(NULL), m_numLines(0), m_lineOffsets(NULL),
+        : m_fileBuffer(NULL), m_fileLength(0), m_numLines(0), m_lineOffsets(NULL),
         m_renderers(renderers), m_verbose(verbose), m_cfMask(ALL_DIFFERENCE_TYPES)
     {
         // read the file into memory for fast access
@@ -102,7 +102,7 @@ public:
             }
         }
     }
-    
+
     ~CompareRenderer()
     {
         delete [] m_fileBuffer;
@@ -318,10 +318,9 @@ int main(int argc, char ** argv)
     Renderer* renderers[NUM_RENDERERS] = {NULL, NULL, NULL, NULL, NULL};
     FeatureParser * featureSettings = NULL;
     FeatureParser * altFeatureSettings = NULL;
-    int direction = (rendererOptions[OptRtl].exists())? 1 : 0;
-    int segCacheSize = rendererOptions[OptSegCache].getInt(argv);
+    bool direction = rendererOptions[OptRtl].exists();
     const std::string traceLogPath = rendererOptions[OptTrace].exists() ? rendererOptions[OptTrace].get(argv) : std::string();
-	Gr2Face face(fontFile, traceLogPath, rendererOptions[OptDemand].get(argv));
+	  Gr2Face face(fontFile, traceLogPath, rendererOptions[OptDemand].get(argv));
 
 
     if (rendererOptions[OptFeatures].exists())
@@ -372,6 +371,7 @@ int main(int argc, char ** argv)
     {
         fprintf(stderr, "Please specify at least 1 renderer\n");
         showOptions();
+        if (rendererOptions[OptLogFile].exists()) fclose(log);
         return -3;
     }
 

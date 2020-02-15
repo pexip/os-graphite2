@@ -2,21 +2,21 @@ project(comparerenderer)
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     set(RT_LDFLAGS "rt")
-endif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+endif()
 
 include_directories(../common ${PROJECT_SOURCE_DIR}/../../src)
 
-file(GLOB PRIVATE_HEADERS *.h) 
+file(GLOB PRIVATE_HEADERS *.h)
 set_source_files_properties(${PRIVATE_HEADERS} PROPERTIES HEADER_FILE_ONLY true)
 
 add_executable(comparerenderer
     CompareRenderer.cpp
-    ${PRIVATE_HEADERS}
-    )
+    ${PRIVATE_HEADERS})
 
-if (GRAPHITE2_ASAN)
-    set_target_properties(comparerenderer PROPERTIES LINK_FLAGS "-fsanitize=address")
-endif (GRAPHITE2_ASAN)
+if  (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    set_target_properties(comparerenderer PROPERTIES
+    COMPILE_FLAGS   "-std=c++11")
+endif()
 
 # rt is for timing
 target_link_libraries(comparerenderer graphite2-base graphite2 ${FREETYPE_LIBRARIES} ${GLIB_LD_FLAGS} ${HB_LDFLAGS} ${HB1_LDFLAGS} ${GR_LDFLAGS} ${ICU_LDFLAGS} ${RT_LDFLAGS})
@@ -26,21 +26,18 @@ if  (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
     add_custom_target(${PROJECT_NAME}_copy_dll ALL
     COMMAND ${CMAKE_COMMAND} -E copy_if_different ${graphite2_core_BINARY_DIR}/${CMAKE_CFG_INTDIR}/${CMAKE_SHARED_LIBRARY_PREFIX}graphite2${CMAKE_SHARED_LIBRARY_SUFFIX} ${PROJECT_BINARY_DIR}/${CMAKE_CFG_INTDIR})
     add_dependencies(${PROJECT_NAME}_copy_dll graphite2 iconv comparerenderer)
-endif  (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+endif()
 
 macro(comparetest TESTNAME FONTFILE TEXTFILE)
     if (${GR_FOUND})
     # comparision tests between old and new graphite
         add_test(NAME ${TESTNAME}_comparison COMMAND $<TARGET_FILE:comparerenderer>
         -t ${testing_SOURCE_DIR}/texts/${TEXTFILE} -f ${testing_SOURCE_DIR}/fonts/${FONTFILE} -s 12 -v -l ${PROJECT_BINARY_DIR}/${TESTNAME}.log -n --tolerance 0.0001 ${ARGN})
-        if (GRAPHITE2_ASAN)
-            set_property(TEST ${TESTNAME}_comparison APPEND PROPERTY ENVIRONMENT "ASAN_SYMBOLIZER_PATH=${ASAN_SYMBOLIZER}")
-        endif (GRAPHITE2_ASAN)
         set_tests_properties(${TESTNAME}_comparison PROPERTIES TIMEOUT 3)
         add_test(NAME ${TESTNAME}cmpOutput COMMAND ${CMAKE_COMMAND} -E compare_files ${PROJECT_BINARY_DIR}/${TESTNAME}.log ${PROJECT_SOURCE_DIR}/../standards/${TESTNAME}${PLATFORM_TEST_SUFFIX}.log)
         set_tests_properties(${TESTNAME}cmpOutput PROPERTIES DEPENDS ${TESTNAME})
-    endif (${GR_FOUND})
-endmacro(comparetest)
+    endif()
+endmacro()
 
 comparetest(charis charis_r_gr.ttf udhr_eng.txt)
 comparetest(padauk Padauk.ttf my_HeadwordSyllables.txt)
