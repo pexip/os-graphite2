@@ -4,70 +4,43 @@ export DPKG_EXPORT_BUILDFLAGS = 0
 include /usr/share/dpkg/architecture.mk
 
 %:
-	dh $@ --builddirectory=build
-
-override_dh_strip:
-	dh_strip --dbg-package=libgraphite2-3-dbg
+	dh $@ --with python3 --buildsystem=cmake --builddirectory=build
 
 override_dh_auto_build-arch:
 	dh_auto_build --parallel
-#	echo "Building perl module"
-#	cd contrib/perl && \
-#		perl Build.PL prefix=/usr && \
-#		./Build
 
 override_dh_auto_build-indep:
 	echo "Building docs"
 	dh_auto_build -- docs
-#	echo "Building C# binding"
-#	cd contrib/C\# && \
-#		mono-xbuild NGraphite.sln
 
 override_dh_auto_install:
 	if [ -f ./build/src/libgraphite2.so.3 ]; then \
 		dh_auto_install; \
 	else \
+		for v in `py3versions -v -s`; do \
+			python$$v setup.py -v install --prefix=/usr --root=$(CURDIR)/debian/python3-graphite2; \
+		done; \
 		dh_install -plibgraphite2-doc --sourcedir=$(CURDIR); \
 	fi
-#	cd perl && \
-#		./Build install destdir=$(CURDIR)/debian/libtext-gr2-perl
-#	# hack
-#	cd $(CURDIR)/debian/libtext-gr2-perl/usr && \
-#		mkdir share && mv man share
-#	cd $(CURDIR)/debian/libtext-gr2-perl/usr/lib && \
-#		mv perl perl5 && cd perl5 && mv 5.*/* . && rm -rf 5.*
-#	find debian/libtext-gr2-perl -type f -name .packlist | xargs rm -f
 
 override_dh_auto_test:
 	if [ -f ./build/src/libgraphite2.so.3 ]; then \
 		dh_auto_test; \
 	fi
-#ifneq (nocheck,$(findstring nocheck,$(DEB_BUILD_OPTIONS)))
-#	cd contrib/perl && \
-#		LD_LIBRARY_PATH=$(CURDIR)/build/src ./Build test
-#endif
 
 override_dh_auto_clean:
-#	if [ -e contrib/perl/Build ]; then cd contrib/perl && \
-#		./Build clean; fi
-#	rm -rf contrib/perl/Build contrib/perl/_build
-#	rm -f /contrib/perl/MYMETA*
-#	rm -f contrib/C\#/NGraphite/obj/Debug/NGraphite.csproj.FilesWrittenAbsolute.txt
-#	-find contrib/C\# -name "*.dll" | xargs rm
-#	-find contrib/C\# -name "*.dll.mdb" | xargs rm
 	-find . -name "CTestCostData.txt" | xargs rm
 	-find . -name "LastTest.log"  | xargs rm
 	rm -f tests/graphite.pyc
+	rm -rf tests/__pycache__
+	rm -f python/graphite2/__pycache__/__init__.cpython-37.pyc
+	rm -rf python/graphite2.egg-info
 	dh_auto_clean
 
 override_dh_auto_configure:
-	dh_auto_configure -- -DCMAKE_BUILD_TYPE:STRING=Release -DGRAPHITE2_NTRACING:BOOL=ON -DLIB_SUFFIX=/$(DEB_HOST_MULTIARCH)
+	dh_auto_configure -- -DCMAKE_BUILD_TYPE:STRING=Release -DGRAPHITE2_NTRACING:BOOL=ON -DLIB_SUFFIX=/$(DEB_HOST_MULTIARCH) -DPYTHON_EXECUTABLE=$(shell which python3)
 	find . -type f ! -name "rules" ! -name "changelog" \
 		-exec sed -i -e 's/\-O3//g' {} \;
-
-override_dh_gencontrol:
-	dh_gencontrol -Nlibtext-gr2-perl -O--builddirectory=build
-#	dh_gencontrol -plibtext-gr2-perl -- -v`cat perl/META.yml | grep version: | tail -n 1 | awk '{ print $$2 }'`-`dpkg-parsechangelog  | grep urgency | awk '{ print $$2 }' | sed -e 's/(//' | sed -e 's/)//' | cut -d- -f2`
 
 override_dh_strip:
 	dh_strip --ddeb-migration="libgraphite2-3-dbg (<= 1.3.4-1)"

@@ -1,29 +1,23 @@
-Format: http://dep.debian.net/deps/dep5
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: graphite
 Source: https://github.com/silnrsi/graphite/releases
 
 Files: *
 Copyright: (C) 2010-2011, SIL International
-License: LGPL-2+
-    This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Library General Public
-    License as published by the Free Software Foundation; either
-    version 2 of the License, or (at your option) any later version.
-    .
-    This library is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Library General Public License for more details.
-    . 
-    On Debian systems you should have a local copy of the GNU Library
-    General Public License in /usr/share/common-licenses/LGPL-2. If you
-    downloaded the source you will find it in the file LICENSE; if not,
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+License: LGPL-2.1+ or MPL-1.1 or GPL-2+
 
+Files: src/CMakeLists.txt tests/comparerenderer/* tests/featuremap/* tests/nametabletest/* tests/segcache/* tests/graphite.py
+Copyright: (C) 2010-2011, SIL International
+License: LGPL-2.1+ 
+
+Files: tests/texts/udhr* tests/standards/scheherazade_arb.log tests/standards/charis.log tests/standards/piglatin.log tests/standards/charis_yor.log
+Copyright: © 1996 – 2009 The Office of the High Commissioner for Human Rights
+License: public-domain
+ 
 Files: contrib/perl/*
 Copyright: Copyright (C) 2011 Simon Cozens <simon@cpan.org>
-License: GPL1+ | Artistic
+License: Artistic or GPL-1+
+Comment:
     This program is free software; you can redistribute it and/or modify
     it under the terms of either:
     .
@@ -32,10 +26,6 @@ License: GPL1+ | Artistic
        version, or
     .
     b) the "Artistic License" which comes with Perl.
-    .
-    On Debian GNU/Linux systems, the complete text of the GNU General
-    Public License can be found in `/usr/share/common-licenses/GPL' and
-    the Artistic Licence in `/usr/share/common-licenses/Artistic'.
 
 Files: contrib/perl/ppport.h
 Copyright: 2004-2010, Marcus Holland-Moritz <mhx-cpan@gmx.net>
@@ -45,81 +35,89 @@ License: Artistic or GPL-1+
 
 Files: debian-src/*
 Copyright: 2010 Martin Hosken <martin_hosken@sil.org>
-License: LGPL-2+
-    This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Library General Public
-    License as published by the Free Software Foundation; either
-    version 2 of the License, or (at your option) any later version.
-    .
-    This library is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Library General Public License for more details.
-    .
-    On Debian systems you should have a local copy of the GNU Library
-    General Public License in /usr/share/common-licenses/LGPL-2. If you
-    downloaded the source you will find it in the file LICENSE; if not,
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+License: LGPL-2.1+
 
-Files: debian*/*
+Files: debian/*
 Copyright: 2010 Martin Hosken <martin_hosken@sil.org>
            2011 Rene Engelhard <rene@debian.org>
-License: LGPL-2+
-    This library is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Library General Public
-    License as published by the Free Software Foundation; either
-    version 2 of the License, or (at your option) any later version.
-    .
-    This library is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Library General Public License for more details.
-    .
-    On Debian systems you should have a local copy of the GNU Library
-    General Public License in /usr/share/common-licenses/LGPL-2. If you
-    downloaded the source you will find it in the file LICENSE; if not,
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
-
-Files: tests/comparerenderer/icule/*
-Copyright: Copyright (c) 1995-2006 International Business Machines Corporation and others
-License: other
-   Permission is hereby granted, free of charge, to any person obtaining a
-   copy of this software and associated documentation files (the
-   "Software"), to deal in the Software without restriction, including
-   without limitation the rights to use, copy, modify, merge, publish,
-   distribute, and/or sell copies of the Software, and to permit persons
-   to whom the Software is furnished to do so, provided that the above
-   copyright notice(s) and this permission notice appear in all copies of
-   the Software and that both the above copyright notice(s) and this
-   permission notice appear in supporting documentation.
-   .
-   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
-   OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-   MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
-   OF THIRD PARTY RIGHTS. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
-   HOLDERS INCLUDED IN THIS NOTICE BE LIABLE FOR ANY CLAIM, OR ANY SPECIAL
-   INDIRECT OR CONSEQUENTIAL DAMAGES, OR ANY DAMAGES WHATSOEVER RESULTING
-   FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
-   NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION
-   WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-   .
-   Except as contained in this notice, the name of a copyright holder
-   shall not be used in advertising or otherwise to promote the sale, use
-   or other dealings in this Software without prior written authorization
-   of the copyright holder.
+           2017 Mattia Rizzolo <mattia@debian.org>
+License: LGPL-2.1+
 
 Files: gr2fonttest/gr2FontTest.cpp
 Copyright: Copyright (C) 2005 www.thanlwinsoft.org
-License: LGPL | other
-
-Files: tests/comparerenderer/GrUtfTextSrc.*
-Copyright: Copyright (C) 2004 Keith Stribley
-License: MPL-1.1 | GPL-2 | LGPL-2.1
+License: LGPL-2.1+ or GPL-2+ or MPL-1.1
 
 Files: tests/fonts/*
-License: other
+Copyright:
+License: custom-sil-open-font-license
+
+License: Artistic
+ On Debian systems you can find a copy of the Artistic license in
+ /usr/share/common-licenses/Artistic
+
+License: GPL-1+
+ This program is free software; you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free Software
+ Foundation; either version 1, or (at your option) any later version.
+ .
+ This program is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License along with
+ this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
+ Street Fifth Floor, Boston, MA 02110-1301, USA.
+ .
+ On Debian systems you can find a local copy of the GNU General Public License
+ in /usr/share/common-licenses/GPL-1.
+
+License: GPL-2+
+ This program is free software; you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free Software
+ Foundation; version 2 of the license, or (at your opinion) any later version.
+ .
+ This program is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License along with
+ this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
+ Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ .
+ On Debian systems you can find a local copy of the GNU General Public License
+ in /usr/share/common-licenses/GPL-2.
+
+License: MPL-1.1
+ The contents of this file are subject to the Mozilla Public License Version
+ 1.1 (the "License"); you may not use this file except in compliance with the
+ License. You may obtain a copy of the License at http://www.mozilla.org/MPL/.
+ .
+ Software distributed under the License is distributed on an "AS IS" basis,
+ WITHOUT WARRANTY OF ANY KIND, either express or implied. See the License for
+ the specific language governing rights and limitations under the License.
+ .
+ On Debian systems you can find a local copy of the GNU General Public License
+ in /usr/share/common-licenses/MPL-1.1.
+
+License: LGPL-2.1+
+ This library is free software; you can redistribute it and/or modify it under
+ the terms of the GNU Lesser General Public License as published by the Free
+ Software Foundation; version 2.1 of the license, or (at your option) any later
+ version.
+ .
+ This library is distributed in the hope that it will be useful, but WITHOUT
+ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ details.
+ .
+ You should have received a copy of the GNU Lesser General Public License along
+ with this library; if not, write to the Free Software Foundation, Inc., 51
+ Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ .
+ On Debian systems you can find a local copy of the GNU Lesser General Public
+ License in /usr/share/common-licenses/LGPL-2.1.
+
+License: custom-sil-open-font-license
  -----------------------------------------------------------
  SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
  -----------------------------------------------------------

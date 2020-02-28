@@ -1,6 +1,7 @@
-do-not-require-ss2.diff
+do-not-require-sse2.diff
 ffloat-store.diff
-non-linux.diff
+#non-linux.diff
 no-icons.diff
 test-timeout.diff
 reproducible-build.diff
+python-libgraphite-SONAME.diff

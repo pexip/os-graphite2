@@ -29,10 +29,9 @@
 #include "inc/TtfTypes.h"
 #include "inc/NameTable.h"
 
-#pragma pack(push, 1)
-
 using namespace graphite2;
 
+#pragma pack(push, 1)
 struct NameTestA
 {
     TtfUtil::Sfnt::FontNames m_nameHeader;
@@ -48,6 +47,8 @@ struct NameTestB
     TtfUtil::Sfnt::LangTagRecord m_languages[2];
     uint8 m_textData[59];
 };
+#pragma pack(pop)
+
 
 NameTestA testA = {
     {0, 6, (5 * sizeof(TtfUtil::Sfnt::NameRecord)) +
@@ -97,8 +98,6 @@ NameTestB testB = {
      0,0x6d,0,0x6e,0,0x77,0,0x2d,0,0x4d,0,0x4d
     }
 };
-
-#pragma pack(pop)
 
 void testName(void * data, size_t length, uint16 langId,
               uint16 actualLang, uint16 nameId, const char * utf8Text)
@@ -154,7 +153,7 @@ template <class T> T * toBigEndian(T & table)
     bigEndian->m_nameHeader.name_record[0].name_id = be::swap<uint16>(table.m_nameHeader.name_record[0].name_id);
     bigEndian->m_nameHeader.name_record[0].length = be::swap<uint16>(table.m_nameHeader.name_record[0].length);
     bigEndian->m_nameHeader.name_record[0].offset = be::swap<uint16>(table.m_nameHeader.name_record[0].offset);
-    
+
     memcpy(bigEndian->m_textData, table.m_textData, sizeof(table.m_textData) );
     return bigEndian;
 }
@@ -180,7 +179,7 @@ int main(int, char **)
     testName(testAData, sizeof(NameTestA), 0x409, 0x409, 7, "ABC");
     testName(testAData, sizeof(NameTestA), 0x809, 0x809, 7, "abcd");
     testName(testAData, sizeof(NameTestA), 0x455, 0x455, 7, "ကခ");
-    
+
     testLangId(testAData, sizeof(NameTestA), "en-US", 0x409);
     testLangId(testAData, sizeof(NameTestA), "en", 0x409);
     testLangId(testAData, sizeof(NameTestA), "en-GB", 0x809);
@@ -206,4 +205,3 @@ int main(int, char **)
 
     return 0;
 }
-
