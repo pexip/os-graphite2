@@ -1,60 +1,35 @@
-diff --git a/src/CMakeLists.txt b/src/CMakeLists.txt
-index 89a59af..758dbbb 100644
+Forwarded: https://github.com/silnrsi/graphite/pull/59
+
 --- a/src/CMakeLists.txt
 +++ b/src/CMakeLists.txt
-@@ -102,7 +102,7 @@ set_target_properties(graphite2 PROPERTIES  PUBLIC_HEADER "${GRAPHITE_HEADERS}"
+@@ -102,7 +102,7 @@
                                              LT_VERSION_REVISION ${GRAPHITE_API_REVISION}
                                              LT_VERSION_AGE ${GRAPHITE_API_AGE})
  
 -if  (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 +if  (${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "k.*BSD" OR ${CMAKE_SYSTEM_NAME} STREQUAL "GNU")
      set_target_properties(graphite2 PROPERTIES
-         COMPILE_FLAGS   "-Wall -Wextra -Wno-unknown-pragmas -Wendif-labels -Wshadow -Wctor-dtor-privacy -Wnon-virtual-dtor -fno-rtti -fno-exceptions -fvisibility=hidden -fvisibility-inlines-hidden"
+         COMPILE_FLAGS   "-Wall -Wextra -Wno-unknown-pragmas -Wendif-labels -Wshadow -Wctor-dtor-privacy -Wnon-virtual-dtor -fno-rtti -fno-exceptions -fvisibility=hidden -fvisibility-inlines-hidden -ffloat-store"
          LINK_FLAGS      "-nodefaultlibs ${GRAPHITE_LINK_FLAGS}"
-@@ -132,7 +132,7 @@ if  (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-     endif ()
-     set(CMAKE_CXX_IMPLICIT_LINK_LIBRARIES "")
-     CREATE_LIBTOOL_FILE(graphite2 "/lib${LIB_SUFFIX}")
--endif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-+endif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "k.*BSD" OR ${CMAKE_SYSTEM_NAME} STREQUAL "GNU")
- 
- if  (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-     set_target_properties(graphite2 PROPERTIES
-diff --git a/tests/examples/CMakeLists.txt b/tests/examples/CMakeLists.txt
-index fe4b826..4e576f8 100644
 --- a/tests/examples/CMakeLists.txt
 +++ b/tests/examples/CMakeLists.txt
-@@ -23,12 +23,12 @@ macro(test_example TESTNAME SRCFILE)
+@@ -23,7 +23,7 @@
      set_tests_properties(${TESTNAME} PROPERTIES TIMEOUT 3)
- endmacro(test_example)
+ endmacro()
  
 -if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 +if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "k.*BSD" OR ${CMAKE_SYSTEM_NAME} STREQUAL "GNU")
      find_package(Freetype)
      if (${FREETYPE_FOUND})
          include_directories(${FREETYPE_INCLUDE_DIRS})
-     endif (${FREETYPE_FOUND})
--endif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-+endif (${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "k.*BSD" OR ${CMAKE_SYSTEM_NAME} STREQUAL "GNU")
- 
- macro(test_freetype TESTNAME SRCFILE)
-     if (${FREETYPE_FOUND})
-diff --git a/tests/vm/CMakeLists.txt b/tests/vm/CMakeLists.txt
-index 02a5ff3..54012d7 100644
 --- a/tests/vm/CMakeLists.txt
 +++ b/tests/vm/CMakeLists.txt
-@@ -29,12 +29,12 @@ if  (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+@@ -29,7 +29,7 @@
  	target_link_libraries(vm-test-direct vm-test-common)
- endif  (CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+ endif()
  
 -if  (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 +if  (${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "k.*BSD" OR ${CMAKE_SYSTEM_NAME} STREQUAL "GNU")
  	add_definitions(-fno-rtti -fno-exceptions)
  	if ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
  		add_definitions(-DNDEBUG -fomit-frame-pointer)
- 	endif ("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
--endif  (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-+endif  (${CMAKE_SYSTEM_NAME} STREQUAL "Linux" OR ${CMAKE_SYSTEM_NAME} MATCHES "k.*BSD" OR ${CMAKE_SYSTEM_NAME} STREQUAL "GNU")
- 
- add_test(vm-test-call-threading vm-test-call ${testing_SOURCE_DIR}/fonts/small.ttf 1)
- set_tests_properties(vm-test-call-threading PROPERTIES

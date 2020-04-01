@@ -6,25 +6,23 @@ include /usr/share/dpkg/architecture.mk
 %:
 	dh $@ --with python3 --buildsystem=cmake --builddirectory=build
 
-override_dh_auto_build-arch:
-	dh_auto_build --parallel
-
 override_dh_auto_build-indep:
-	echo "Building docs"
-	dh_auto_build -- docs
+	@echo "Building docs"
+	dh_auto_build --no-parallel -- docs
 
-override_dh_auto_install:
-	if [ -f ./build/src/libgraphite2.so.3 ]; then \
-		dh_auto_install; \
-	else \
-		for v in `py3versions -v -s`; do \
-			python$$v setup.py -v install --prefix=/usr --root=$(CURDIR)/debian/python3-graphite2; \
-		done; \
-		dh_install -plibgraphite2-doc --sourcedir=$(CURDIR); \
-	fi
+override_dh_auto_install-arch:
+	dh_auto_install -a
 
+override_dh_auto_install-indep:
+
+override_dh_install-indep:
+	set -e ; for v in `py3versions -v -s`; do \
+		python$$v setup.py -v install --prefix=/usr --root=$(CURDIR)/debian/python3-graphite2; \
+	done
+
+override_dh_auto_test: export LD_LIBRARY_PATH := $(CURDIR)/build/src
 override_dh_auto_test:
-	if [ -f ./build/src/libgraphite2.so.3 ]; then \
+	set -e; if [ -f ./build/src/libgraphite2.so.3 ]; then \
 		dh_auto_test; \
 	fi
 
@@ -33,7 +31,7 @@ override_dh_auto_clean:
 	-find . -name "LastTest.log"  | xargs rm
 	rm -f tests/graphite.pyc
 	rm -rf tests/__pycache__
-	rm -f python/graphite2/__pycache__/__init__.cpython-37.pyc
+	rm -rf python/graphite2/__pycache__
 	rm -rf python/graphite2.egg-info
 	dh_auto_clean
 
@@ -41,6 +39,3 @@ override_dh_auto_configure:
 	dh_auto_configure -- -DCMAKE_BUILD_TYPE:STRING=Release -DGRAPHITE2_NTRACING:BOOL=ON -DLIB_SUFFIX=/$(DEB_HOST_MULTIARCH) -DPYTHON_EXECUTABLE=$(shell which python3)
 	find . -type f ! -name "rules" ! -name "changelog" \
 		-exec sed -i -e 's/\-O3//g' {} \;
-
-override_dh_strip:
-	dh_strip --ddeb-migration="libgraphite2-3-dbg (<= 1.3.4-1)"
