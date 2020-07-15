@@ -1,3 +1,9 @@
+graphite2 (1.3.13-7pexip2) pexip; urgency=medium
+
+  * Rebuild in buster environment
+
+ -- Steve McIntyre <steve.mcintyre@pexip.com>  Wed, 15 Jul 2020 22:31:10 +0000
+
 graphite2 (1.3.13-7pexip1) pexip; urgency=medium
 
   * Migrate to Buster
