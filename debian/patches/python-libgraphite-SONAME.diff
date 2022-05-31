@@ -1,8 +1,6 @@
-diff --git a/python/graphite2/__init__.py b/python/graphite2/__init__.py
-index 2d03470..901bbb5 100644
 --- a/python/graphite2/__init__.py
 +++ b/python/graphite2/__init__.py
-@@ -32,15 +32,8 @@ from ctypes import (byref,
+@@ -32,15 +32,8 @@
                      CFUNCTYPE, POINTER, Structure)
  
  

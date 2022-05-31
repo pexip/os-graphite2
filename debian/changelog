@@ -1,3 +1,69 @@
+graphite2 (1.3.14-1) unstable; urgency=medium
+
+  * New upstream version 1.3.14
+
+ -- Rene Engelhard <rene@debian.org>  Wed, 01 Apr 2020 11:11:00 +0200
+
+graphite2 (1.3.13-11) unstable; urgency=medium
+
+  * Team upload.
+  * d/rules: fix variable name in the previous change.
+
+ -- Mattia Rizzolo <mattia@debian.org>  Tue, 15 Oct 2019 19:56:08 +0200
+
+graphite2 (1.3.13-10) unstable; urgency=medium
+
+  * Team upload.
+  * d/rules: export LD_LIBRARY_PATH while testing.
+    The build fails consistently on the buildds, but I can't reproduce it no
+    matter what.  Lacking a clear solution, let's try explicitly exporting
+    this variable, hoping it will work around whatever is going wrong.
+
+ -- Mattia Rizzolo <mattia@debian.org>  Tue, 15 Oct 2019 17:55:43 +0200
+
+graphite2 (1.3.13-9) unstable; urgency=medium
+
+  * Team upload.
+  * Simplify and forward d/patches/non-linux.diff
+  * Run wrap-and-sort.
+  * d/control:
+    + Bump Standards-Version to 4.4.1, no changes needed.
+    + Annotate python3 build dependency with :native.  Closes: #941647
+      Thanks to Helmut Grohne for the patch.
+
+ -- Mattia Rizzolo <mattia@debian.org>  Thu, 03 Oct 2019 12:16:50 +0200
+
+graphite2 (1.3.13-8) unstable; urgency=medium
+
+  * Team upload.
+
+  [ Rene Engelhard ]
+  * Apply patch from Helmut Grohne to annotate
+    Build-Depends: python3-fonttools with <!nocheck>. (Closes: #928545)
+
+  [ Mattia Rizzolo ]
+  * Refresh all the patches.
+  * Apply patch from Svante Signell to refresh the non-linux.diff patch.
+  * Enable the non-linux.diff patch again (disabled in 1.3.12-1).
+  * d/rules: Drop now unneeded override_dh_strip.
+  * Drop now unneeded lintian override for embedded-javascript-library.
+  * d/control:
+    + Bump Standards-Version to 4.4.0, no changes needed.
+    + Set Rules-Requires-Root:no.
+  * d/rules:
+    + Explicitly set --no-parallel to the dh_auto_build building the docs, as
+      that's what's preventing the whole thing from being completely parallel.
+    + Split the current override_dh_auto_install into multiple targets,
+      for better separation of arch/indep builds.
+  * Bump debhelper compat level to 12:
+    + Drop d/compat, use the new debhelper-compat notation instead.
+    + Drop explicit --parallel, default since compat 10.
+    + The documentation moved: /usr/share/doc/libgraphite2-{doc -> dev}/html/
+      (change from Policy v3.9.7, §12.3)
+  * d/libgraphite2-doc.install: drop, the .docs contains it all already.
+
+ -- Mattia Rizzolo <mattia@debian.org>  Sun, 18 Aug 2019 23:15:02 +0200
+
 graphite2 (1.3.13-7pexip2) pexip; urgency=medium
 
   * Rebuild in buster environment
@@ -108,7 +174,7 @@ graphite2 (1.3.10-7) unstable; urgency=medium
 
 graphite2 (1.3.10-6) unstable; urgency=medium
 
-  * fix Build-Depends:, since we use python3 now we need to B-D: on python3, 
+  * fix Build-Depends:, since we use python3 now we need to B-D: on python3,
   * Build-Depend just on python3-fonttools
 
  -- Rene Engelhard <rene@debian.org>  Sun, 15 Oct 2017 16:24:48 +0000
@@ -229,7 +295,7 @@ graphite2 (1.3.6-1~deb8u1) stable-security; urgency=high
 graphite2 (1.3.6-1) unstable; urgency=medium
 
   * New upstream release
-    - fixes CVE-2016-1977 CVE-2016-2790 CVE-2016-2791 CVE-2016-2792 
+    - fixes CVE-2016-1977 CVE-2016-2790 CVE-2016-2791 CVE-2016-2792
             CVE-2016-2793 CVE-2016-2794 CVE-2016-2795 CVE-2016-2796
             CVE-2016-2797 CVE-2016-2798 CVE-2016-2799 CVE-2016-2800
             CVE-2016-2801 CVE-2016-2802
@@ -339,7 +405,7 @@ graphite2 (1.2.4-3pexip1) pexip; urgency=low
 
 graphite2 (1.2.4-3) unstable; urgency=medium
 
-  * run a2x without --icons to avoid FTBFS (closes: #741845) 
+  * run a2x without --icons to avoid FTBFS (closes: #741845)
 
  -- Rene Engelhard <rene@debian.org>  Sun, 01 Jun 2014 11:12:56 +0200
 
@@ -353,7 +419,7 @@ graphite2 (1.2.4-2) unstable; urgency=low
 graphite2 (1.2.4-1) unstable; urgency=low
 
   * New upstream release
-  * some tests need apparently need python, build-dep on python (>= 2.6) 
+  * some tests need apparently need python, build-dep on python (>= 2.6)
 
  -- Rene Engelhard <rene@debian.org>  Fri, 29 Nov 2013 20:12:13 +0100
 
@@ -366,7 +432,7 @@ graphite2 (1.2.3-1) unstable; urgency=low
 graphite2 (1.2.2-2) unstable; urgency=low
 
   * add patch from Michael Cree <mcree@orcon.net.nz> to fix
-    misaligned memory access - thanks (closes: #710336) 
+    misaligned memory access - thanks (closes: #710336)
 
  -- Rene Engelhard <rene@debian.org>  Sun, 02 Jun 2013 12:05:28 +0000
 
@@ -381,7 +447,7 @@ graphite2 (1.2.2-1) unstable; urgency=low
 
 graphite2 (1.2.1-2) unstable; urgency=low
 
-  * upload to unstable 
+  * upload to unstable
 
  -- Rene Engelhard <rene@debian.org>  Thu, 18 Apr 2013 23:49:24 +0200
 
@@ -394,7 +460,7 @@ graphite2 (1.2.1-1) experimental; urgency=low
 graphite2 (1.2.0-4) experimental; urgency=low
 
   * revert multiarch stuff as harfbuzz now doesn't need us
-    anymore... (reopens: #699714) 
+    anymore... (reopens: #699714)
 
  -- Rene Engelhard <rene@debian.org>  Sat, 02 Mar 2013 14:29:58 +0100
 
@@ -442,14 +508,14 @@ graphite2 (1.1.1-1) unstable; urgency=low
 
 graphite2 (1.1.0-2) unstable; urgency=low
 
-  * upload to unstable 
+  * upload to unstable
 
  -- Rene Engelhard <rene@debian.org>  Tue, 21 Feb 2012 20:41:47 +0100
 
 graphite2 (1.1.0-1) experimental; urgency=low
 
   * New upstream release
-  * fix copyright syntax 
+  * fix copyright syntax
 
  -- Rene Engelhard <rene@debian.org>  Tue, 07 Feb 2012 22:55:08 +0000
 
@@ -462,7 +528,7 @@ graphite2 (1.0.3.real-1) unstable; urgency=low
 graphite2 (1.0.3-1) unstable; urgency=low
 
   * New upstream release
-  * add libxml2-utils to B-D-I 
+  * add libxml2-utils to B-D-I
 
  -- Rene Engelhard <rene@debian.org>  Tue, 20 Sep 2011 00:28:27 +0200
 
@@ -485,8 +551,8 @@ graphite2 (1.0.1-3) unstable; urgency=low
 
 graphite2 (1.0.1-2) unstable; urgency=low
 
-  * debian/patches/fix-typedefs.diff: fix Main.h typedefs for 
-    WORDS_BIGENDIAN 
+  * debian/patches/fix-typedefs.diff: fix Main.h typedefs for
+    WORDS_BIGENDIAN
 
  -- Rene Engelhard <rene@debian.org>  Tue, 09 Aug 2011 17:47:10 +0000
 
@@ -499,8 +565,8 @@ graphite2 (1.0.1-1) unstable; urgency=low
   * stop symlinking to Debian's fonts as they are not sufficient for the
     tests
   * update debian/copyright; mention ppport.h according to
-    http://pkg-perl.alioth.debian.org/copyright.html#devel__ppport 
-  * fix libgraphite2-2.0.0's short description 
+    http://pkg-perl.alioth.debian.org/copyright.html#devel__ppport
+  * fix libgraphite2-2.0.0's short description
 
  -- Rene Engelhard <rene@debian.org>  Thu, 28 Jul 2011 12:54:36 +0000
 
@@ -526,7 +592,7 @@ graphite2 (0.9.4.dfsg-1) experimental; urgency=low
 
   * remove perl/pport.h and tests/fonts/* from .orig
 
-  * debian/changelog: update 
+  * debian/changelog: update
   * debian/control: build-depend on ttf-sil-padauk, ttf-sil-scheherazade
   * debian/rules: symlink to Debian's versions pf Padauk and Scheherazade,
     though....

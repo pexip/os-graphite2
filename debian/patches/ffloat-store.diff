@@ -1,6 +1,6 @@
---- a/src/CMakeLists.txt-old	2018-03-10 14:08:09.505536540 +0100
-+++ b/src/CMakeLists.txt	2018-03-10 14:08:37.737995390 +0100
-@@ -112,7 +112,7 @@
+--- a/src/CMakeLists.txt
++++ b/src/CMakeLists.txt
+@@ -104,7 +104,7 @@
  
  if  (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
      set_target_properties(graphite2 PROPERTIES
@@ -8,4 +8,4 @@
 +        COMPILE_FLAGS   "-Wall -Wextra -Wno-unknown-pragmas -Wendif-labels -Wshadow -Wctor-dtor-privacy -Wnon-virtual-dtor -fno-rtti -fno-exceptions -fvisibility=hidden -fvisibility-inlines-hidden -ffloat-store"
          LINK_FLAGS      "-nodefaultlibs ${GRAPHITE_LINK_FLAGS}"
          LINKER_LANGUAGE C)
-     if (CMAKE_COMPILER_IS_GNUCXX)
+     if (${CMAKE_SYSTEM_PROCESSOR} MATCHES "x86|i.86")
