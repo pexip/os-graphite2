@@ -21,6 +21,7 @@ import ctypes
 import ctypes.util
 import errno
 import os
+import sys
 from ctypes import (byref,
                     c_char, c_char_p,
                     c_double, c_float,
@@ -107,10 +108,9 @@ fn('gr_fref_id', c_uint32, c_void_p)
 fn('gr_fref_n_values', c_uint16, c_void_p)
 fn('gr_fref_value', c_int16, c_void_p, c_uint16)
 fn('gr_fref_label', c_void_p,
-    c_void_p, POINTER(c_uint16), c_int, POINTER(c_uint32), errcheck=__check)
+    c_void_p, POINTER(c_uint16), c_int, POINTER(c_uint32))
 fn('gr_fref_value_label', c_void_p,
-    c_void_p, c_uint16, POINTER(c_uint16), c_int, POINTER(c_uint32),
-    errcheck=__check)
+    c_void_p, c_uint16, POINTER(c_uint16), c_int, POINTER(c_uint32))
 fn('gr_label_destroy', None, c_void_p)
 fn('gr_featureval_clone', c_void_p, c_void_p, errcheck=__check)
 fn('gr_featureval_destroy', None, c_void_p)
@@ -163,16 +163,18 @@ else:
 
 
 def tag_to_str(num):
-    s = ctypes.create_string_buffer('\000' * 5)
+    s = ctypes.create_string_buffer(b'\000' * 5)
     gr2.gr_tag_to_str(num, s)
     return bytes(s.value)
 
 
 class Label(str):
     def __new__(typename, ref, size):
+        v = ctypes.string_at(ref, size)
+        if sys.version_info.major > 2:
+            v = v.decode("utf-8")
         return super(Label, typename).__new__(
-                        typename,
-                        ctypes.string_at(ref, size))
+                        typename, v)
 
     def __init__(self, ref, size):
         self.ref = ref
@@ -211,6 +213,8 @@ class FeatureRef(object):
         lngid = c_uint16(langid)
         length = c_uint32(0)
         res = gr2.gr_fref_label(self.fref, byref(lngid), 1, byref(length))
+        if res is None:
+            return Label("", 0)
         return Label(res, length.value)
 
     def label(self, ind, langid):
@@ -218,6 +222,8 @@ class FeatureRef(object):
         length = c_uint32(0)
         res = gr2.gr_fref_value_label(self.fref, ind, byref(lngid), 1,
                                       byref(length))
+        if res is None:
+            return Label("", 0)
         return Label(res, length.value)
 
     def tag(self):

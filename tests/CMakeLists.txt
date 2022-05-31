@@ -45,12 +45,12 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 else (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 # don't -D GRAPHITE2_STATIC so that tests can see the API symbols in the static library
     set_target_properties(graphite2-base PROPERTIES
-        COMPILE_FLAGS       "-Wall -Wextra -fno-rtti -fno-exceptions"
+        COMPILE_FLAGS       "-Wall -Wextra -Wno-class-memaccess -fno-rtti -fno-exceptions"
         COMPILE_DEFINITIONS "GRAPHITE2_NTRACING"
         LINK_FLAGS          "-nodefaultlibs ${GRAPHITE_LINK_FLAGS}"
         LINKER_LANGUAGE     C)
     set_target_properties(graphite2-file PROPERTIES
-        COMPILE_FLAGS       "-Wall -Wextra -fno-rtti -fno-exceptions"
+        COMPILE_FLAGS       "-Wall -Wextra  -Wno-class-memaccess -fno-rtti -fno-exceptions"
         COMPILE_DEFINITIONS "GRAPHITE2_NTRACING${TELEMETRY}"
         LINK_FLAGS          "-nodefaultlibs ${GRAPHITE_LINK_FLAGS}"
         LINKER_LANGUAGE     C)
@@ -119,6 +119,5 @@ cmptest(chariscmp1 charis_r_gr.ttf udhr_eng.txt)
 cmptest(chariscmp2 charis_r_gr.ttf udhr_yor.txt)
 cmptest(annacmp1 Annapurnarc2.ttf udhr_nep.txt)
 cmptest(schercmp1 Scheherazadegr.ttf udhr_arb.txt -r)
-cmptest(awamicmp1 Awami_test.ttf awami_tests.txt -r -e 1)
+cmptest(awamicmp1 AwamiNastaliq-Regular.ttf awami_tests.txt -r -e 1)
 cmptest(awamicmp2 Awami_compressed_test.ttf awami_tests.txt -r -e 1)
-cmptest(awamicmp3 Awami_compressed_test2.ttf awami_tests.txt -r -e 1)
