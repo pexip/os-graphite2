@@ -5,3 +5,7 @@ no-icons.diff
 test-timeout.diff
 reproducible-build.diff
 python-libgraphite-SONAME.diff
+do-not-require-future.diff
+spell-out-lesser-and-greater.diff 
+no-explicit-dot-font-settings.diff 
+explicit-pdflatex.diff

@@ -1,3 +1,25 @@
+graphite2 (1.3.14-2) unstable; urgency=medium
+
+  [ Debian Janitor ]
+  * Use secure URI in Homepage field.
+  * Update standards version to 4.5.0, no changes needed.
+  * Set upstream metadata fields: Bug-Database, Bug-Submit, Repository,
+    Repository-Browse.
+  * Remove constraints unnecessary since stretch:
+    + Build-Depends: Drop versioned constraint on dh-exec.
+  * Remove constraints unnecessary since buster (oldstable):
+    + Build-Depends: Drop versioned constraint on dpkg-dev and python3.
+
+  [ Rene Engelhard ]
+  * debian/patches/do-not-require-future.diff: as name says
+    (closes: #1058584)
+  * debian/patches/spell-out-lesser-and-greater.diff,
+    debian/patches/no-explicit-dot-font-settings.diff,
+    debian/patches/explicit-pdflatex.diff: fix documentation build
+    (closes: #1052740)
+
+ -- Rene Engelhard <rene@debian.org>  Sun, 24 Dec 2023 11:38:53 +0100
+
 graphite2 (1.3.14-1) unstable; urgency=medium
 
   * New upstream version 1.3.14

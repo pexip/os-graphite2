@@ -1,0 +1,20 @@
+otherwise we get
+
+error: perl: non supported HTML-entity found: &zwj;
+
+diff --git a/include/graphite2/Segment.h b/include/graphite2/Segment.h
+index 0e24f5d..5d90fee 100644
+--- a/include/graphite2/Segment.h
++++ b/include/graphite2/Segment.h
+@@ -190,9 +190,9 @@ GR2_API unsigned int gr_cinfo_unicode_char(const gr_char_info* p/*not NULL*/);
+ /** Returns breakweight for a charinfo.
+   *
+   * @return Breakweight is a number between -50 and 50 indicating the cost of a
+-  * break before or after this character. If the value < 0, the absolute value
++  * break before or after this character. If the value is lesser than 0, the absolute value
+   * is this character's contribution to the overall breakweight before it. If the value
+-  * > 0, then the value is this character's contribution to the overall breakweight after it.
++  * is bigger than 0, then the value is this character's contribution to the overall breakweight after it.
+   * The overall breakweight between two characters is the maximum of the breakweight
+   * contributions from the characters either side of it. If a character makes no
+   * contribution to the breakweight on one side of it, the contribution is considered

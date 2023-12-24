@@ -1,0 +1,48 @@
+Use pdflatex explicitely. Otherwise we get
+
+make[6]: Entering directory '/home/rene/graphite2/build/doc/doxygen/latex'
+rm -f *.ps *.dvi *.aux *.toc *.idx *.ind *.ilg *.log *.out *.brf *.blg *.bbl refman.pdf
+xelatex refman
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex)
+ restricted \write18 enabled.
+entering extended mode
+(./refman.tex
+LaTeX2e <2023-11-01>
+L3 programming layer <2023-11-09>
+! Undefined control sequence.
+l.4   \pdfminorversion
+                      =7
+? 
+! Emergency stop.
+l.4 
+    
+No pages of output.
+Transcript written on refman.log.
+make[6]: *** [Makefile:12: refman.pdf] Error 1
+
+diff --git a/doc/full.cfg b/doc/full.cfg
+index d3d864a..88bab69 100644
+--- a/doc/full.cfg
++++ b/doc/full.cfg
+@@ -1099,7 +1099,7 @@ LATEX_OUTPUT           = latex
+ # generating bitmaps for formulas in the HTML output, but not in the
+ # Makefile that is written to the output directory.
+ 
+-LATEX_CMD_NAME         = xelatex
++LATEX_CMD_NAME         = pdflatex
+ 
+ # The MAKEINDEX_CMD_NAME tag can be used to specify the command name to
+ # generate index for LaTeX. If left blank `makeindex' will be used as the
+diff --git a/doc/public.cfg b/doc/public.cfg
+index 90a0c33..3c887e4 100644
+--- a/doc/public.cfg
++++ b/doc/public.cfg
+@@ -1099,7 +1099,7 @@ LATEX_OUTPUT           = latex
+ # generating bitmaps for formulas in the HTML output, but not in the
+ # Makefile that is written to the output directory.
+ 
+-LATEX_CMD_NAME         = xelatex
++LATEX_CMD_NAME         = pdflatex
+ 
+ # The MAKEINDEX_CMD_NAME tag can be used to specify the command name to
+ # generate index for LaTeX. If left blank `makeindex' will be used as the
