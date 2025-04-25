@@ -1,0 +1,12 @@
+diff --git a/setup.py b/setup.py
+index 3433cd3..b54dc29 100755
+--- a/setup.py
++++ b/setup.py
+@@ -26,7 +26,6 @@ setup(
+     zip_safe         = False,
+     package_dir      = {'': 'python'},
+     packages         = ['graphite2'],
+-    install_requires = ['future'],
+     long_description = long_description,
+     long_description_content_type = 'text/markdown',
+     classifiers = [
