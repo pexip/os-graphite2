@@ -9,3 +9,4 @@ do-not-require-future.diff
 spell-out-lesser-and-greater.diff 
 no-explicit-dot-font-settings.diff 
 explicit-pdflatex.diff
+ad78c6b7319909e1540c1b134e115ced03417866.patch
